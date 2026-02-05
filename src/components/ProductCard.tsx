@@ -1,13 +1,35 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/data/products";
+import { useCart } from "@/context/CartContext";
 
 interface ProductCardProps {
     product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+    const { addToCart } = useCart();
+    const [quantity, setQuantity] = useState(1);
+
+    const handleAddToCart = () => {
+        addToCart(product, quantity);
+        setQuantity(1); // Reset quantity after adding
+    };
+
+    const incrementQuantity = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setQuantity(prev => prev + 1);
+    };
+
+    const decrementQuantity = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (quantity > 1) {
+            setQuantity(prev => prev - 1);
+        }
+    };
+
     return (
         <div className="group relative flex flex-col glass-card rounded-2xl overflow-hidden hover:shadow-hover-lift transition-all duration-500 ease-out hover:-translate-y-1 ring-1 ring-white/5 hover:ring-blue-500/30">
             {/* Product Image */}
@@ -22,13 +44,6 @@ export function ProductCard({ product }: ProductCardProps) {
                     <Button variant="secondary" size="sm" className="translate-y-4 group-hover:translate-y-0 transition-transform duration-300 bg-white/90 dark:bg-slate-950/90 text-slate-900 dark:text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg backdrop-blur-md border border-white/20 dark:border-white/10 hover:bg-white dark:hover:bg-slate-900 h-auto">
                         Quick View
                     </Button>
-                </div>
-
-                {/* Favorite Button */}
-                <div className="absolute top-3 right-3 p-2 rounded-full bg-white/80 dark:bg-black/60 text-slate-400 hover:text-red-500 hover:bg-white dark:hover:bg-slate-800 cursor-pointer transition-all duration-300 shadow-sm backdrop-blur-md z-10 border border-transparent hover:border-red-100 dark:hover:border-red-900/30">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                    </svg>
                 </div>
 
                 {/* Badge */}
@@ -53,36 +68,55 @@ export function ProductCard({ product }: ProductCardProps) {
                     </p>
                 </div>
 
-                <div className="mt-auto flex items-end justify-between pt-4 border-t border-slate-100 dark:border-white/5">
-                    <div className="flex flex-col">
-                        {product.originalPrice ? (
-                            <>
-                                <span className="text-xs text-slate-400 font-medium line-through mb-0.5">
-                                    ${product.originalPrice.toFixed(2)}
-                                </span>
-                                <span className="text-red-500 dark:text-red-400 text-lg font-bold">
-                                    ${product.price.toFixed(2)}
-                                </span>
-                            </>
-                        ) : (
-                            <>
-                                <span className="text-xs text-slate-400 font-medium mb-0.5">Price</span>
-                                <span className="text-slate-900 dark:text-blue-400 text-lg font-bold">
-                                    ${product.price.toFixed(2)}
-                                </span>
-                            </>
-                        )}
+                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-white/5 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                            {product.originalPrice ? (
+                                <>
+                                    <span className="text-xs text-slate-400 font-medium line-through mb-0.5">
+                                        ${product.originalPrice.toFixed(2)}
+                                    </span>
+                                    <span className="text-red-500 dark:text-red-400 text-lg font-bold">
+                                        ${product.price.toFixed(2)}
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-xs text-slate-400 font-medium mb-0.5">Price</span>
+                                    <span className="text-slate-900 dark:text-blue-400 text-lg font-bold">
+                                        ${product.price.toFixed(2)}
+                                    </span>
+                                </>
+                            )}
+                        </div>
                     </div>
 
-                    <Button variant="secondary" size="icon" className="rounded-full size-10 hover:bg-blue-500 dark:hover:bg-blue-500 hover:text-white dark:text-slate-200 transition-all duration-300 shadow-sm group/btn border border-transparent dark:border-white/10 dark:bg-white/5 bg-slate-100">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover/btn:scale-110 transition-transform">
-                            <circle cx="8" cy="21" r="1" />
-                            <circle cx="19" cy="21" r="1" />
-                            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                            <path d="M9 11h6" />
-                            <path d="M12 8v6" />
-                        </svg>
-                    </Button>
+                    <div className="flex bg-slate-100 dark:bg-white/5 rounded-full p-1 border border-transparent dark:border-white/10">
+                        <div className="flex items-center bg-white dark:bg-slate-900 rounded-full px-2 mr-2 border border-slate-200 dark:border-white/10">
+                            <button
+                                onClick={decrementQuantity}
+                                className="size-6 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                type="button"
+                            >
+                                -
+                            </button>
+                            <span className="w-8 text-center text-xs font-bold text-slate-900 dark:text-white">{quantity}</span>
+                            <button
+                                onClick={incrementQuantity}
+                                className="size-6 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                                type="button"
+                            >
+                                +
+                            </button>
+                        </div>
+                        <Button
+                            onClick={handleAddToCart}
+                            size="sm"
+                            className="flex-1 rounded-full text-xs font-bold bg-slate-900 dark:bg-blue-600 text-white hover:bg-slate-800 dark:hover:bg-blue-500 shadow-sm"
+                        >
+                            Add to Cart
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

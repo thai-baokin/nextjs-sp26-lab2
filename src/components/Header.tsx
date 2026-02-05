@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { CartIcon } from "@/components/CartIcon";
 
 export function Header() {
     const [darkMode, setDarkMode] = useState(true);
@@ -49,6 +50,9 @@ export function Header() {
                             type="text"
                         />
                     </div>
+
+                    {/* Cart Icon */}
+                    <CartIcon />
 
                     {/* Theme Toggle */}
                     <button
